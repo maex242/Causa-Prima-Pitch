@@ -273,53 +273,37 @@
             z-index: 100;
         }
 
-        /* Mobile tap zones */
-        .tap-zone {
-            position: fixed;
-            top: 0;
-            height: 100%;
-            width: 50%;
-            z-index: 50;
-            cursor: pointer;
-        }
-
-        .tap-zone-left {
-            left: 0;
-        }
-
-        .tap-zone-right {
-            right: 0;
-        }
-
         /* Mobile navigation arrows */
         .mobile-nav {
             display: none;
             position: fixed;
-            bottom: 80px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 100;
-            gap: 60px;
+            z-index: 200;
+            gap: 80px;
         }
 
         .mobile-nav-btn {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border: 2px solid var(--orange);
-            background: rgba(10, 10, 10, 0.8);
+            border-radius: 50%;
+            background: var(--black);
             color: var(--orange);
-            font-size: 24px;
+            font-size: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .mobile-nav-btn:active {
             background: var(--orange);
             color: var(--black);
+            transform: scale(0.95);
         }
 
         @media (hover: none) and (pointer: coarse) {
@@ -654,6 +638,31 @@
             opacity: 0.3;
         }
 
+        /* Problem size stats */
+        .problem-stats {
+            display: flex;
+            gap: 60px;
+            justify-content: center;
+        }
+
+        .problem-stat {
+            text-align: center;
+        }
+
+        .problem-number {
+            font-size: 6vw;
+            font-weight: 700;
+            color: var(--orange);
+            line-height: 1;
+        }
+
+        .problem-label {
+            font-size: 1.2vw;
+            opacity: 0.7;
+            margin-top: 10px;
+            max-width: 150px;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .slide {
@@ -790,6 +799,20 @@
             .points {
                 font-size: 3.5vw;
             }
+
+            .problem-stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .problem-number {
+                font-size: 12vw;
+            }
+
+            .problem-label {
+                font-size: 3vw;
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -798,18 +821,14 @@
     <div class="cursor-dot"></div>
     <div class="noise"></div>
     <div class="progress" id="progress"></div>
-    <div class="counter"><span id="current">01</span> / <span id="total">14</span></div>
+    <div class="counter"><span id="current">01</span> / <span id="total">15</span></div>
     <div class="nav-hint">← → or click to navigate</div>
 
     <!-- Mobile navigation -->
     <div class="mobile-nav">
-        <button class="mobile-nav-btn" id="prevBtn">←</button>
-        <button class="mobile-nav-btn" id="nextBtn">→</button>
+        <button class="mobile-nav-btn" id="prevBtn" type="button">←</button>
+        <button class="mobile-nav-btn" id="nextBtn" type="button">→</button>
     </div>
-
-    <!-- Tap zones for mobile -->
-    <div class="tap-zone tap-zone-left" id="tapLeft"></div>
-    <div class="tap-zone tap-zone-right" id="tapRight"></div>
 
     <div class="presentation">
         <!-- Slide 1: Title -->
@@ -878,11 +897,17 @@
             </div>
         </div>
 
-        <!-- Slide 6: What Business Is About -->
-        <div class="slide" data-slide="6">
+        <!-- Slide 6: Welcome Causa Prima -->
+        <div class="slide slide-title" data-slide="6">
             <div class="diagonal-bg"></div>
-            <h3 style="opacity: 0.5; margin-bottom: 20px;">WHAT IS BUSINESS ABOUT?</h3>
-            <h1 style="text-align: center;">ONE THING<br><span class="orange">ONLY</span></h1>
+            <div class="logo" style="margin-bottom: 20px;">WELCOME</div>
+            <h1 style="text-align: center;"><span class="orange">CAUSA PRIMA</span></h1>
+            <p style="margin-top: 40px; font-size: 2.2vw; text-align: center; opacity: 0.8;">
+                Latin: <em>"The First Cause"</em>
+            </p>
+            <p style="margin-top: 30px; font-size: 1.8vw; text-align: center; max-width: 800px;">
+                The root cause of business is exactly one thing.
+            </p>
         </div>
 
         <!-- Slide 7: The Money -->
@@ -917,8 +942,32 @@
             </p>
         </div>
 
-        <!-- Slide 9: Context Graph -->
+        <!-- Slide 9: The Problem Size -->
         <div class="slide" data-slide="9">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE PROBLEM SIZE</h3>
+            <h2 style="text-align: center; margin-bottom: 40px;"><span class="orange">$102T</span> in Annual B2B Payments</h2>
+            <div class="problem-stats">
+                <div class="problem-stat">
+                    <div class="problem-number">68%</div>
+                    <div class="problem-label">Manual invoice processing</div>
+                </div>
+                <div class="problem-stat">
+                    <div class="problem-number">50%</div>
+                    <div class="problem-label">Invoices paid late</div>
+                </div>
+                <div class="problem-stat">
+                    <div class="problem-number">$18T</div>
+                    <div class="problem-label">Trapped working capital</div>
+                </div>
+            </div>
+            <p style="margin-top: 40px; text-align: center; font-size: 1.6vw; opacity: 0.7;">
+                280B invoices. 9% written off as bad debt. 80% miss early payment discounts.
+            </p>
+        </div>
+
+        <!-- Slide 10: Context Graph -->
+        <div class="slide" data-slide="10">
             <div class="diagonal-bg"></div>
             <h3 style="opacity: 0.5; margin-bottom: 20px;">THE ARCHITECTURE</h3>
             <h2>The <span class="orange">Context Graph</span></h2>
@@ -935,8 +984,8 @@
             </p>
         </div>
 
-        <!-- Slide 10: Future Rails -->
-        <div class="slide" data-slide="10">
+        <!-- Slide 11: Future Rails -->
+        <div class="slide" data-slide="11">
             <div class="diagonal-bg"></div>
             <h3 style="opacity: 0.5; margin-bottom: 20px;">THE PHILOSOPHY</h3>
             <h2 style="text-align: center;">Good Tech is <span class="orange">Plumbing</span></h2>
@@ -953,8 +1002,8 @@
             </p>
         </div>
 
-        <!-- Slide 11: Beyond Finance -->
-        <div class="slide" data-slide="11">
+        <!-- Slide 12: Beyond Finance -->
+        <div class="slide" data-slide="12">
             <div class="diagonal-bg"></div>
             <h3 style="opacity: 0.5; margin-bottom: 20px;">THE EXPANSION</h3>
             <h2 style="text-align: center;">Finance is Just the <span class="orange">Start</span></h2>
@@ -981,8 +1030,8 @@
             </p>
         </div>
 
-        <!-- Slide 12: Team -->
-        <div class="slide" data-slide="12">
+        <!-- Slide 13: Team -->
+        <div class="slide" data-slide="13">
             <div class="diagonal-bg"></div>
             <h3 style="opacity: 0.5; margin-bottom: 20px;">THE TEAM</h3>
             <h2>Battle-Tested <span class="orange">Operators</span></h2>
@@ -1009,8 +1058,8 @@
             </p>
         </div>
 
-        <!-- Slide 13: End Goal -->
-        <div class="slide" data-slide="13">
+        <!-- Slide 14: End Goal -->
+        <div class="slide" data-slide="14">
             <div class="diagonal-bg"></div>
             <h3 style="opacity: 0.5; margin-bottom: 20px;">THE END GOAL</h3>
             <h1 style="text-align: center;">
@@ -1021,8 +1070,8 @@
             </h1>
         </div>
 
-        <!-- Slide 14: CTA -->
-        <div class="slide slide-title" data-slide="14">
+        <!-- Slide 15: CTA -->
+        <div class="slide slide-title" data-slide="15">
             <div class="diagonal-bg"></div>
             <div class="logo">CAUSA PRIMA</div>
             <h2>Join the <span class="orange">First Cause</span></h2>
@@ -1094,56 +1143,46 @@
         });
 
         // Mobile navigation buttons
-        document.getElementById('prevBtn').addEventListener('click', (e) => {
+        document.getElementById('prevBtn').ontouchstart = function(e) {
             e.stopPropagation();
             prevSlide();
-        });
-
-        document.getElementById('nextBtn').addEventListener('click', (e) => {
+        };
+        document.getElementById('nextBtn').ontouchstart = function(e) {
             e.stopPropagation();
             nextSlide();
-        });
+        };
 
-        // Tap zones for mobile
-        document.getElementById('tapLeft').addEventListener('click', (e) => {
-            e.stopPropagation();
-            prevSlide();
-        });
-
-        document.getElementById('tapRight').addEventListener('click', (e) => {
-            e.stopPropagation();
-            nextSlide();
-        });
-
-        // Touch navigation (swipe)
+        // Swipe navigation - listen on document body for iPhone
         let touchStartX = 0;
         let touchStartY = 0;
-        let touchMoved = false;
+        let isSwiping = false;
 
-        document.addEventListener('touchstart', (e) => {
+        document.body.addEventListener('touchstart', function(e) {
+            // Ignore if touching a button
+            if (e.target.classList.contains('mobile-nav-btn')) return;
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-            touchMoved = false;
+            isSwiping = true;
         }, { passive: true });
 
-        document.addEventListener('touchmove', (e) => {
-            touchMoved = true;
-        }, { passive: true });
+        document.body.addEventListener('touchend', function(e) {
+            if (!isSwiping) return;
+            if (e.target.classList.contains('mobile-nav-btn')) return;
 
-        document.addEventListener('touchend', (e) => {
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
             const deltaX = touchStartX - touchEndX;
             const deltaY = Math.abs(touchStartY - touchEndY);
 
-            // Only trigger swipe if horizontal movement is greater than vertical
-            if (Math.abs(deltaX) > 50 && deltaY < 100) {
+            // Swipe: 40px horizontal, less vertical than horizontal
+            if (Math.abs(deltaX) > 40 && deltaY < Math.abs(deltaX)) {
                 if (deltaX > 0) {
                     nextSlide();
                 } else {
                     prevSlide();
                 }
             }
+            isSwiping = false;
         }, { passive: true });
     </script>
 </body>
