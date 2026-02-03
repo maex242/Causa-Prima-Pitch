@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causa Prima - The End of Enterprise Software</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --orange: #FF5E00;
+            --orange-bright: #FF7A00;
+            --orange-dark: #CC4A00;
+            --black: #0A0A0A;
+            --white: #FAFAFA;
+            --gray: #666;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow: hidden;
+            cursor: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Show normal cursor on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
+            .cursor, .cursor-dot {
+                display: none;
+            }
+        }
+
+        /* Custom cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--orange);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--orange);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Presentation container */
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 100px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: translateY(20px);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 7vw;
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            font-size: 5vw;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-size: 3vw;
+            font-weight: 600;
+            line-height: 1.1;
+        }
+
+        p {
+            font-size: 1.8vw;
+            line-height: 1.5;
+            max-width: 800px;
+        }
+
+        .huge {
+            font-size: 15vw;
+            font-weight: 700;
+            line-height: 0.85;
+            letter-spacing: -0.04em;
+        }
+
+        .orange {
+            color: var(--orange);
+        }
+
+        .strike {
+            text-decoration: line-through;
+            opacity: 0.4;
+        }
+
+        .mono {
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Slide specific styles */
+        .slide-title {
+            text-align: center;
+        }
+
+        .slide-title .logo {
+            font-size: 1.2vw;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            opacity: 0.6;
+        }
+
+        .slide-title h1 {
+            margin-bottom: 30px;
+        }
+
+        .slide-title .tagline {
+            font-size: 2vw;
+            opacity: 0.7;
+            font-weight: 300;
+        }
+
+        /* Stats slide */
+        .stat-container {
+            display: flex;
+            gap: 80px;
+            margin-top: 60px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 8vw;
+            font-weight: 700;
+            color: var(--orange);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1.2vw;
+            opacity: 0.6;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Left aligned content */
+        .slide-left {
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .slide-left h2 {
+            margin-bottom: 40px;
+        }
+
+        /* List styles */
+        .points {
+            list-style: none;
+            font-size: 2vw;
+            line-height: 2;
+        }
+
+        .points li {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .points li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--orange);
+        }
+
+        /* Grid layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            width: 100%;
+            align-items: center;
+        }
+
+        /* Noise overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 1000;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Progress bar */
+        .progress {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--orange);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* Slide counter */
+        .counter {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            opacity: 0.5;
+            z-index: 100;
+        }
+
+        /* Navigation hint */
+        .nav-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 40px;
+            font-size: 12px;
+            opacity: 0.3;
+            z-index: 100;
+        }
+
+        /* Mobile tap zones */
+        .tap-zone {
+            position: fixed;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            z-index: 50;
+            cursor: pointer;
+        }
+
+        .tap-zone-left {
+            left: 0;
+        }
+
+        .tap-zone-right {
+            right: 0;
+        }
+
+        /* Mobile navigation arrows */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            gap: 60px;
+        }
+
+        .mobile-nav-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--orange);
+            background: rgba(10, 10, 10, 0.8);
+            color: var(--orange);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-nav-btn:active {
+            background: var(--orange);
+            color: var(--black);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .mobile-nav {
+                display: flex;
+            }
+            .nav-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav {
+                display: flex;
+            }
+            .nav-hint {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        .glitch:hover {
+            animation: glitch 0.3s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s ease infinite;
+        }
+
+        /* Diagonal lines background */
+        .diagonal-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 50px,
+                rgba(255, 94, 0, 0.03) 50px,
+                rgba(255, 94, 0, 0.03) 51px
+            );
+            pointer-events: none;
+        }
+
+        /* Team grid */
+        .team-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .team-stat {
+            text-align: center;
+            padding: 30px;
+            border: 1px solid rgba(255, 94, 0, 0.3);
+        }
+
+        .team-stat-number {
+            font-size: 4vw;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .team-stat-label {
+            font-size: 1vw;
+            opacity: 0.6;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Flow diagram */
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .flow-item {
+            padding: 20px 40px;
+            border: 2px solid var(--orange);
+            font-size: 1.5vw;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            font-size: 2vw;
+            color: var(--orange);
+        }
+
+        /* Quote style */
+        .quote {
+            font-size: 4vw;
+            font-weight: 300;
+            font-style: italic;
+            text-align: center;
+            line-height: 1.3;
+            max-width: 80%;
+        }
+
+        .quote-mark {
+            font-size: 10vw;
+            color: var(--orange);
+            opacity: 0.3;
+            line-height: 0;
+        }
+
+        /* Crossed out list */
+        .obsolete-list {
+            font-size: 2.5vw;
+            line-height: 1.8;
+            list-style: none;
+        }
+
+        .obsolete-list li {
+            text-decoration: line-through;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .obsolete-list li:hover {
+            opacity: 0.1;
+        }
+
+        /* CTA slide */
+        .cta-links {
+            display: flex;
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .cta-link {
+            font-size: 1.5vw;
+            color: var(--orange);
+            text-decoration: none;
+            border-bottom: 2px solid var(--orange);
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .cta-link:hover {
+            color: var(--white);
+            border-color: var(--white);
+        }
+
+        /* Network visualization */
+        .network-viz {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            transform: translateY(-50%);
+            width: 40vw;
+            height: 40vw;
+        }
+
+        .node {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--orange);
+            border-radius: 50%;
+        }
+
+        .node::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, var(--orange), transparent);
+            transform-origin: left center;
+        }
+
+        /* Emphasis box */
+        .emphasis-box {
+            border: 3px solid var(--orange);
+            padding: 40px 60px;
+            margin-top: 40px;
+        }
+
+        .emphasis-box p {
+            font-size: 2.5vw;
+            font-weight: 600;
+        }
+
+        /* Money slide */
+        .slide-money {
+            padding: 40px 60px;
+        }
+
+        .money-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            text-align: center;
+        }
+
+        .money-line {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+        }
+
+        .money-text {
+            font-size: 9vw;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        .money-text.dim {
+            opacity: 0.4;
+        }
+
+        /* Context graph actions */
+        .context-actions {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .context-item {
+            font-size: 2.5vw;
+            font-weight: 600;
+            color: var(--orange);
+            padding: 15px 30px;
+            border: 2px solid var(--orange);
+        }
+
+        /* Rails list */
+        .rails-list {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .rails-item {
+            font-size: 2vw;
+            font-weight: 600;
+        }
+
+        .strike-dim {
+            text-decoration: line-through;
+            opacity: 0.4;
+        }
+
+        /* Network effect box */
+        .network-effect-box {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .effect-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .effect-label {
+            font-size: 1.8vw;
+            font-weight: 700;
+            min-width: 120px;
+            padding: 10px 20px;
+            border: 2px solid var(--white);
+            text-align: center;
+        }
+
+        .effect-label.orange {
+            border-color: var(--orange);
+        }
+
+        .effect-desc {
+            font-size: 1.8vw;
+            opacity: 0.8;
+        }
+
+        /* Expansion grid */
+        .expansion-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .expansion-item {
+            text-align: center;
+            padding: 25px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .expansion-item.active-item {
+            border-color: var(--orange);
+            background: rgba(255, 94, 0, 0.1);
+        }
+
+        .expansion-label {
+            display: block;
+            font-size: 1.5vw;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .expansion-status {
+            font-size: 0.9vw;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--orange);
+        }
+
+        .expansion-status.dim {
+            color: var(--white);
+            opacity: 0.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 40px 60px;
+            }
+
+            h1 { font-size: 10vw; }
+            h2 { font-size: 7vw; }
+            .huge { font-size: 20vw; }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 30px 100px 30px;
+            }
+
+            h1 { font-size: 12vw; }
+            h2 { font-size: 8vw; }
+            h3 { font-size: 4vw; }
+            p { font-size: 3.5vw; }
+
+            .money-text {
+                font-size: 11vw;
+            }
+
+            .money-line {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .flow {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .flow-item {
+                padding: 15px 30px;
+                font-size: 3vw;
+            }
+
+            .context-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .context-item {
+                font-size: 4vw;
+                padding: 12px 20px;
+            }
+
+            .rails-list {
+                flex-direction: column;
+                gap: 15px;
+                align-items: center;
+            }
+
+            .rails-item {
+                font-size: 4vw;
+            }
+
+            .team-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .team-stat-number {
+                font-size: 8vw;
+            }
+
+            .team-stat-label {
+                font-size: 2.5vw;
+            }
+
+            .expansion-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .expansion-label {
+                font-size: 3.5vw;
+            }
+
+            .expansion-status {
+                font-size: 2vw;
+            }
+
+            .network-effect-box {
+                gap: 15px;
+            }
+
+            .effect-row {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .effect-label {
+                font-size: 4vw;
+                min-width: auto;
+                width: 100%;
+            }
+
+            .effect-desc {
+                font-size: 3.5vw;
+            }
+
+            .cta-links {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .cta-link {
+                font-size: 4vw;
+            }
+
+            .counter {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .emphasis-box {
+                padding: 20px 30px;
+            }
+
+            .emphasis-box p {
+                font-size: 4vw;
+            }
+
+            .obsolete-list {
+                font-size: 5vw;
+            }
+
+            .points {
+                font-size: 3.5vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+    <div class="noise"></div>
+    <div class="progress" id="progress"></div>
+    <div class="counter"><span id="current">01</span> / <span id="total">14</span></div>
+    <div class="nav-hint">← → or click to navigate</div>
+
+    <!-- Mobile navigation -->
+    <div class="mobile-nav">
+        <button class="mobile-nav-btn" id="prevBtn">←</button>
+        <button class="mobile-nav-btn" id="nextBtn">→</button>
+    </div>
+
+    <!-- Tap zones for mobile -->
+    <div class="tap-zone tap-zone-left" id="tapLeft"></div>
+    <div class="tap-zone tap-zone-right" id="tapRight"></div>
+
+    <div class="presentation">
+        <!-- Slide 1: Title -->
+        <div class="slide slide-title active" data-slide="1">
+            <div class="diagonal-bg"></div>
+            <div class="logo">CAUSA PRIMA</div>
+            <h1>THE <span class="orange">END</span> OF<br>ENTERPRISE<br>SOFTWARE</h1>
+            <p class="tagline">The Orchestration Layer for the Agentic Era</p>
+        </div>
+
+        <!-- Slide 2: The Year -->
+        <div class="slide" data-slide="2">
+            <div class="diagonal-bg"></div>
+            <span class="huge orange">2026</span>
+            <h3 style="margin-top: 40px;">The Inflection Year for Agentic AI in the Enterprise</h3>
+        </div>
+
+        <!-- Slide 3: The Prediction -->
+        <div class="slide slide-left" data-slide="3">
+            <div class="diagonal-bg"></div>
+            <h2>We believe <span class="orange">90%+</span> of all enterprise software will become</h2>
+            <ul class="obsolete-list" style="margin-top: 40px;">
+                <li>Screens</li>
+                <li>Flows</li>
+                <li>Apps</li>
+                <li>Dashboards</li>
+                <li>Forms</li>
+            </ul>
+            <h2 style="margin-top: 40px;"><span class="orange">Irrelevant.</span></h2>
+        </div>
+
+        <!-- Slide 4: The Insight -->
+        <div class="slide" data-slide="4">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE KEY INSIGHT</h3>
+            <p style="font-size: 2.5vw; text-align: center; margin-bottom: 30px;">
+                An agent automating a task is <span style="opacity: 0.5;">powerful</span>.
+            </p>
+            <h2 style="text-align: center;">Agents solving issues across<br>company boundaries is the</h2>
+            <h1 style="text-align: center; margin-top: 20px;"><span class="orange">HOLY GRAIL</span></h1>
+            <div class="flow">
+                <div class="flow-item">Your Agent</div>
+                <div class="flow-arrow">⟷</div>
+                <div class="flow-item">Their Agent</div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Network Effect -->
+        <div class="slide" data-slide="5">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE NETWORK EFFECT</h3>
+            <h2 style="text-align: center;">Agents Invite <span class="orange">Agents</span></h2>
+            <p style="margin-top: 30px; text-align: center; font-size: 2vw; max-width: 900px;">
+                Down to suppliers. Up to customers.<br>
+                Across the entire supply chain.
+            </p>
+            <div class="network-effect-box">
+                <div class="effect-row">
+                    <span class="effect-label">Product</span>
+                    <span class="effect-desc">Each addition makes the agent stronger</span>
+                </div>
+                <div class="effect-row">
+                    <span class="effect-label orange">GTM</span>
+                    <span class="effect-desc">A2A sales. The perfect distribution.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: What Business Is About -->
+        <div class="slide" data-slide="6">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">WHAT IS BUSINESS ABOUT?</h3>
+            <h1 style="text-align: center;">ONE THING<br><span class="orange">ONLY</span></h1>
+        </div>
+
+        <!-- Slide 7: The Money -->
+        <div class="slide slide-money" data-slide="7">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 10px;">GETTING PAID</h3>
+            <div class="money-grid">
+                <div class="money-line">
+                    <span class="money-text orange">AS MUCH</span>
+                    <span class="money-text dim">AS POSSIBLE</span>
+                </div>
+                <div class="money-line">
+                    <span class="money-text orange">AS EARLY</span>
+                    <span class="money-text dim">AS POSSIBLE</span>
+                </div>
+            </div>
+            <div class="emphasis-box" style="margin-top: 30px;">
+                <p>All else is <span class="strike">NOISE</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Starting Point -->
+        <div class="slide slide-left" data-slide="8">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">WHERE WE START</h3>
+            <h2>The Most <span class="orange">Boring</span> Area<br>of Any Business</h2>
+            <p style="margin-top: 30px; font-size: 2.2vw;">
+                AP. AR. Finance Ops.
+            </p>
+            <p style="margin-top: 20px; font-size: 1.8vw; opacity: 0.7; max-width: 800px;">
+                Because this is where A2A shines. Disputes solved instantly. Payments negotiated. Decisions made. <span class="orange">No screens needed.</span>
+            </p>
+        </div>
+
+        <!-- Slide 9: Context Graph -->
+        <div class="slide" data-slide="9">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE ARCHITECTURE</h3>
+            <h2>The <span class="orange">Context Graph</span></h2>
+            <p style="margin-top: 40px; text-align: center; font-size: 2vw; max-width: 900px;">
+                A growing knowledge layer that informs agent
+            </p>
+            <div class="context-actions">
+                <span class="context-item">Decisions</span>
+                <span class="context-item">Negotiations</span>
+                <span class="context-item">Dispute Resolution</span>
+            </div>
+            <p style="margin-top: 30px; text-align: center; font-size: 1.6vw; opacity: 0.6;">
+                No human in the loop. Just outcomes.
+            </p>
+        </div>
+
+        <!-- Slide 10: Future Rails -->
+        <div class="slide" data-slide="10">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE PHILOSOPHY</h3>
+            <h2 style="text-align: center;">Good Tech is <span class="orange">Plumbing</span></h2>
+            <p style="margin-top: 30px; text-align: center; font-size: 2.2vw;">
+                Invisible. Magic.
+            </p>
+            <div class="rails-list">
+                <span class="rails-item strike-dim">No MetaMask</span>
+                <span class="rails-item strike-dim">No seed phrases</span>
+                <span class="rails-item orange">Just readiness</span>
+            </div>
+            <p style="margin-top: 30px; text-align: center; font-size: 1.6vw; opacity: 0.6; max-width: 700px;">
+                When stablecoin rails win, when tokenization is everywhere—<br>our customers are already there.
+            </p>
+        </div>
+
+        <!-- Slide 11: Beyond Finance -->
+        <div class="slide" data-slide="11">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE EXPANSION</h3>
+            <h2 style="text-align: center;">Finance is Just the <span class="orange">Start</span></h2>
+            <div class="expansion-grid">
+                <div class="expansion-item active-item">
+                    <span class="expansion-label">Finance Ops</span>
+                    <span class="expansion-status">NOW</span>
+                </div>
+                <div class="expansion-item">
+                    <span class="expansion-label">Sales</span>
+                    <span class="expansion-status dim">NEXT</span>
+                </div>
+                <div class="expansion-item">
+                    <span class="expansion-label">Inventory</span>
+                    <span class="expansion-status dim">NEXT</span>
+                </div>
+                <div class="expansion-item">
+                    <span class="expansion-label">HR & Payroll</span>
+                    <span class="expansion-status dim">NEXT</span>
+                </div>
+            </div>
+            <p style="margin-top: 40px; text-align: center; font-size: 1.8vw; opacity: 0.6;">
+                Everywhere zombie screens exist, agents will replace them.
+            </p>
+        </div>
+
+        <!-- Slide 12: Team -->
+        <div class="slide" data-slide="12">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE TEAM</h3>
+            <h2>Battle-Tested <span class="orange">Operators</span></h2>
+            <div class="team-stats">
+                <div class="team-stat">
+                    <div class="team-stat-number">10</div>
+                    <div class="team-stat-label">Startups Built</div>
+                </div>
+                <div class="team-stat">
+                    <div class="team-stat-number">$400M+</div>
+                    <div class="team-stat-label">Venture Raised</div>
+                </div>
+                <div class="team-stat">
+                    <div class="team-stat-number">2</div>
+                    <div class="team-stat-label">Unicorn Exits</div>
+                </div>
+                <div class="team-stat">
+                    <div class="team-stat-number">∞</div>
+                    <div class="team-stat-label">Domain Expertise</div>
+                </div>
+            </div>
+            <p style="margin-top: 40px; text-align: center; opacity: 0.7;">
+                Payments · B2B · ERP · Crypto Pioneers
+            </p>
+        </div>
+
+        <!-- Slide 13: End Goal -->
+        <div class="slide" data-slide="13">
+            <div class="diagonal-bg"></div>
+            <h3 style="opacity: 0.5; margin-bottom: 20px;">THE END GOAL</h3>
+            <h1 style="text-align: center;">
+                RENDER<br>
+                <span class="orange">ENTERPRISE<br>SOFTWARE</span><br>
+                <span class="strike" style="opacity: 0.3;">COMPLETELY</span><br>
+                <span class="orange">IRRELEVANT</span>
+            </h1>
+        </div>
+
+        <!-- Slide 14: CTA -->
+        <div class="slide slide-title" data-slide="14">
+            <div class="diagonal-bg"></div>
+            <div class="logo">CAUSA PRIMA</div>
+            <h2>Join the <span class="orange">First Cause</span></h2>
+            <p style="margin-top: 30px; font-size: 1.8vw; opacity: 0.7;">
+                The orchestration layer for the agentic enterprise.
+            </p>
+            <div class="cta-links">
+                <a href="#" class="cta-link">hello@causaprima.ai</a>
+                <a href="#" class="cta-link">causaprima.ai</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+            cursorDot.style.left = e.clientX - 2 + 'px';
+            cursorDot.style.top = e.clientY - 2 + 'px';
+        });
+
+        // Slides
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+        const currentEl = document.getElementById('current');
+        const totalEl = document.getElementById('total');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        totalEl.textContent = totalSlides.toString().padStart(2, '0');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            currentEl.textContent = (currentSlide + 1).toString().padStart(2, '0');
+            progress.style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Mobile navigation buttons
+        document.getElementById('prevBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevSlide();
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextSlide();
+        });
+
+        // Tap zones for mobile
+        document.getElementById('tapLeft').addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevSlide();
+        });
+
+        document.getElementById('tapRight').addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextSlide();
+        });
+
+        // Touch navigation (swipe)
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchMoved = false;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchMoved = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            touchMoved = true;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchStartX - touchEndX;
+            const deltaY = Math.abs(touchStartY - touchEndY);
+
+            // Only trigger swipe if horizontal movement is greater than vertical
+            if (Math.abs(deltaX) > 50 && deltaY < 100) {
+                if (deltaX > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
